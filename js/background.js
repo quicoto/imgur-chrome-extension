@@ -1,14 +1,5 @@
 /// <reference path="model.js" />
 
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-41081662-9']);
-
-(function () {
-	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	ga.src = 'https://ssl.google-analytics.com/ga.js';
-	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-
 var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
     requestMessenger = new UTILS.RequestMessenger(),
@@ -36,15 +27,15 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 function handleCapture() {
 
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
-	
+
 	chrome.tabs.getSelected(null, function (tab) {
 
 		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
-				
+
 			if (typeof info !== "undefined") {
 
 				chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-				
+
 					requestMessenger.addEventListener("got_area", function (e) {
 						requestMessenger.removeEventListener("got_area", arguments.callee);
 						var canvas = document.createElement('canvas');
@@ -60,7 +51,7 @@ function handleCapture() {
 					}, true);
 
 				});
-			
+
 
 			} else {
 				evtD.dispatchEvent(evtD.EVENT_ERROR, "Access to the page is denied");
@@ -70,8 +61,8 @@ function handleCapture() {
 
 	});
 
-			
-		
+
+
 	return evtD;
 }
 
@@ -398,7 +389,7 @@ function uploadDelegate(evt) {
 }
 
 function setContextMenus() {
-    
+
 	chrome.contextMenus.removeAll(function () {
 
 		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
@@ -559,7 +550,7 @@ function showError(msg) {
 	chrome.browserAction.setBadgeText({ 'text': '' });
 
 	if (typeof msg === "string") {
-		
+
 		chrome.notifications.create("imgur.failed", {
 
 			type: "basic",
@@ -580,7 +571,7 @@ function showError(msg) {
 		}
 	}
 
-	
+
 }
 
 // Can happen silently
@@ -638,13 +629,13 @@ portMessenger.addEventListener("main.get_user", function () {
     	chrome.tabs.onRemoved.addListener(sendAuthAbortedMessage);
 
     	requestMessenger.addEventListener("oauth_verified", function (verifier) {
-    		
+
     		requestMessenger.removeEventListener("oauth_verified", arguments.callee);
 
     		chrome.tabs.remove(tab.id);
 
     		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_COMPLETE', function () {
-    			
+
     			authTab = -1;
     			chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
 
@@ -665,7 +656,7 @@ portMessenger.addEventListener("main.get_user", function () {
     			});
 
     		}).addEventListener('EVENT_ERROR', function (error) {
-    			
+
     			showError(error);
 
     		});
@@ -718,7 +709,7 @@ function showReplyNotification(reply) {
 	xhr.onload = function () {
 
 		var img = arrayBufferDataUri(xhr.response);
-		
+
 		chrome.notifications.create(reply.id + "", {
 			type: "image",
 			iconUrl: "img/logo96.png",
@@ -752,7 +743,7 @@ function showReplyNotification(reply) {
 }
 
 function showReplyNotifications(replies) {
-	
+
 	chrome.notifications.create(replies[0].id + "", {
 		type: "basic",
 		iconUrl: "img/logo96.png",
@@ -898,7 +889,7 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 			break;
 
 	}
-	
+
 	setNotificationInfoAsRead(notificationId, notificationInfo);
 
 });
@@ -937,7 +928,7 @@ function startNotifications() {
 function stopNotifications() {
 
 	chrome.alarms.clear("ALARM_NOTIFICATIONS");
-	
+
 }
 
 function toggleNotifications() {
@@ -961,7 +952,7 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
 		checkNotifications();
 
 	} else if (alarm.name === "ALARM_CONTEXTMENUS") {
-		
+
 		checkContextMenus();
 
 	}
@@ -1059,11 +1050,11 @@ handleNotifications({
 var appNotifications = model.getNotifications();
 
 if (appNotifications.length > 0) {
-	
+
 	for (var i = 0; i < appNotifications.length; i++) {
-		
+
 		(function (notification) {
-			
+
 			chrome.notifications.create(notification.id, {
 
 				type: "basic",

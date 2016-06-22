@@ -78,7 +78,7 @@ function Model() {
 
 	var checkVersion = DAL.get("currentVersion");
 	var currentVersion = chrome.app.getDetails().version;
-    
+
 	// ------------------------------------------------------------------
 	// Upgrade -1 ~ 0.5 - 1.0.3
 	// ------------------------------------------------------------------
@@ -105,7 +105,7 @@ function Model() {
         DAL.set('preferences.tabonrehost', true);
         DAL.set('preferences.copyoncapture', false);
         DAL.set('preferences.taboncapture', true);
-		
+
     };
 
 	// ------------------------------------------------------------------
@@ -129,7 +129,7 @@ function Model() {
     	// This should set the user back to "connect to imgur"
     	DAL.set('OAuthTokens', null);
     	DAL.set('preferences.currentAlbum', '_thisComputer');
-		
+
     	// Upgrade old stored images
     	var unsorted = DAL.get('unsorted');
 
@@ -186,7 +186,7 @@ function Model() {
 	// ------------------------------------------------------------------
 	// Future testing to use this method
 	// ------------------------------------------------------------------
-    
+
     if (checkVersion && checkVersion !== currentVersion) {
 
     	if (checkVersion === "2.0.5") {
@@ -236,9 +236,9 @@ function Model() {
 			retArr = [];
 
 		if (notifications) {
-			
+
 			for (var notification in notifications) {
-				
+
 				if (!notifications[notification].read) {
 					retArr.push(notifications[notification]);
 				}
@@ -289,7 +289,7 @@ function Model() {
     this.currentAlbum = new function () {
 
         this.get = function () {
-            
+
             var albums = DAL.get('albums'),
                 currentAlbum = DAL.get('preferences.currentAlbum');
 
@@ -332,7 +332,7 @@ function Model() {
     	};
 
     	function processQueue() {
-    		
+
     		if (pending.length > 0 && !!!DAL.get('OAuth2.refreshing')) {
 
     			if (CurrentlyProcessing < root.preferences.get('connections')) {
@@ -360,7 +360,7 @@ function Model() {
     					console.log("reauthentication status is", !!DAL.get('OAuth2.refreshing'));
 
     					if (!!!DAL.get('OAuth2.refreshing')) {
-							
+
     						DAL.set('OAuth2.refreshing', true);
 
     						CurrentlyProcessing++;
@@ -406,7 +406,7 @@ function Model() {
     							}
 
     						});
-    						
+
     					} else {
 
     						console.log('Reauthentication running, requeue ', item);
@@ -484,10 +484,10 @@ function Model() {
     		};
 
     		this.getToken = function (pin) {
-    			
+
     			var evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR']),
 					xhr = new XMLHttpRequest();
-    			
+
     			xhr.open("POST", "https://api.imgur.com/metronomik/token", true);
     			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     			xhr.onreadystatechange = function () {
@@ -501,12 +501,12 @@ function Model() {
     						var resp = JSON.parse(xhr.responseText);
 
     						if (xhr.status === 200) {
-    							
+
     								authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
     								evtD.dispatchEvent("EVENT_SUCCESS");
 
     						} else {
-    							
+
     							console.warn('other error', xhr.status);
     							evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
@@ -544,7 +544,7 @@ function Model() {
     						var resp = JSON.parse(xhr.responseText);
 
     						if (xhr.status === 200) {
-    						
+
     							authenticated.oAuthManager.set(resp.access_token, resp.refresh_token, resp.account_username);
     							console.log("new refresh token", resp.refresh_token);
     							evtD.dispatchEvent("EVENT_SUCCESS");
@@ -555,7 +555,7 @@ function Model() {
     							evtD.dispatchEvent("EVENT_ERROR", { text: "Your authentication has expired. Please connect again.", status: xhr.status });
 
     						}
-    					
+
     					} catch (ex) {
     						console.log('imgur borked');
     						evtD.dispatchEvent("EVENT_ERROR", { text: "Something went very wrong with the API response", status: xhr.status });
@@ -576,7 +576,7 @@ function Model() {
 
 		// Can only make instances of
     	var signedRequest = function (method, url, postStr) {
-    		
+
     		var self = this;
 
     		this.evtD = new UTILS.EventDispatcher(['EVENT_COMPLETE', 'EVENT_SUCCESS', 'EVENT_ERROR', 'EVENT_PROGRESS', 'EVENT_LOADING', 'ERROR_RATE_LIMITED']);
@@ -616,7 +616,7 @@ function Model() {
     							self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
     							if (resp.success) {
-    								
+
     								self.evtD.dispatchEvent('EVENT_SUCCESS', resp.data);
 
     							} else {
@@ -640,7 +640,7 @@ function Model() {
 
     					} catch (ex) {
     						console.log('imgur borked', ex);
-    						
+
     						self.evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
 
     					}
@@ -667,7 +667,7 @@ function Model() {
     	this.getAlbum = function (id) {
 
     		var albums = DAL.get('albums');
-    		
+
     		if (albums.length > 0) {
 
     			for (var i = 0; i < albums.length; i++) {
@@ -709,7 +709,7 @@ function Model() {
     	};
 
     	this.fetchUserImages = function (offset) {
-    		
+
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/images?page=" + offset)
     		root.requestManager.queue(req);
 
@@ -726,7 +726,7 @@ function Model() {
 
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/albums");
     		root.requestManager.queue(req);
-    		
+
     		req.evtD.addEventListener("EVENT_SUCCESS", function (albums) {
     			console.log('set', albums);
     			DAL.set('albums', albums);
@@ -737,13 +737,13 @@ function Model() {
     	};
 
     	this.fetchAlbumImages = function (ID, offset) {
-    		
+
     		var req = new signedRequest("GET", "https://api.imgur.com/3/account/me/album/" + ID + "/images?page=" + offset);
     		root.requestManager.queue(req);
 
             // Handle caching
     		req.evtD.addEventListener("EVENT_SUCCESS", function (images) {
-    		    
+
     			DAL.set('album/' + ID + '/' + offset, images);
 
     		});
@@ -829,13 +829,13 @@ function Model() {
 
     	};
 
-    	
 
 
-        
+
+
 
     	this.makeAlbum = function (title) {
-    		
+
     		var req = new signedRequest("POST", "https://api.imgur.com/3/album/", "title=" + title);
     		root.requestManager.queue(req);
 
@@ -850,9 +850,6 @@ function Model() {
     	};
 
     	this.sendImage = function (album, image) {
-
-			// Don't track the actual image, just that they have triggered this method
-    		_gaq.push(['_trackEvent', 'Image', 'Send Image', 'Authenticated']);
 
     		var postStr = "image=" + encode(image) + "&type=base64";
 
@@ -869,34 +866,15 @@ function Model() {
 
     	this.favouriteImage = function (ID) {
 
-    	    _gaq.push(['_trackEvent', 'Image', 'Favourite Image', 'Authenticated']);
-
     	    var req = new signedRequest("POST", "https://api.imgur.com/3/image/" + ID + "/favorite");
     	    root.requestManager.queue(req);
 
     	    return req.evtD;
 
     	};
-		
-    	/*
-		Not implemented because the API doesn't handle it
 
-    	this.unfavouriteImage = function (ID) {
-
-    		_gaq.push(['_trackEvent', 'Image', 'Unfavourite Image', 'Authenticated']);
-
-    		var req = new signedRequest("DELETE", "https://api.imgur.com/3/image/" + ID + "/favorite");
-    		root.requestManager.queue(req);
-
-    		return req.evtD;
-
-    	};
-		*/
 
     	this.sendImageURL = function (album, url) {
-
-    		// Don't track the actual image, just that they have triggered this method
-    		_gaq.push(['_trackEvent', 'Image', 'Send Image URL', 'Authenticated']);
 
     		var postStr = "image=" + encode(url) + "&type=url";
 
@@ -913,9 +891,6 @@ function Model() {
 
 
     	this.deleteImage = function (deletehash) {
-
-    		// Don't track the actual image, just that they have triggered this method
-    		_gaq.push(['_trackEvent', 'Image', 'Delete Image', 'Authenticated']);
 
     		var req = new signedRequest("DELETE", "https://api.imgur.com/3/image/" + deletehash);
     		root.requestManager.queue(req);
@@ -967,7 +942,7 @@ function Model() {
     			        self.evtD.dispatchEvent('EVENT_LOADING');
 
     			    } else if (xhr.readyState === 4) {
-    					
+
     					try {
 
     						var resp = JSON.parse(xhr.responseText);
@@ -975,7 +950,7 @@ function Model() {
     						if (xhr.status === 200) {
 
     							var resp = JSON.parse(xhr.responseText);
-    						
+
     							self.evtD.dispatchEvent('EVENT_COMPLETE', resp.data);
 
     							if (resp.success) {
@@ -994,7 +969,7 @@ function Model() {
     							self.evtD.dispatchEvent("EVENT_ERROR", resp.data.error);
 
     						}
-    					
+
     					} catch (ex) {
 
     						self.evtD.dispatchEvent("EVENT_ERROR", "imgur API error. Please try again later.");
@@ -1018,9 +993,6 @@ function Model() {
 
     	this.sendImage = function (image) {
 
-    		// Don't track the actual image, just that they have triggered this method
-    		_gaq.push(['_trackEvent', 'Image', 'Send Image', 'Unauthenticated']);
-
 			// Strange how we don't encode the image here to make it work
     		var req = new signedRequest("POST", "https://api.imgur.com/3/image", "image=" + image + "&type=base64");
     		root.requestManager.queue(req);
@@ -1041,9 +1013,6 @@ function Model() {
 
     	this.sendImageURL = function (url) {
 
-    		// Don't track the actual image, just that they have triggered this method
-    		_gaq.push(['_trackEvent', 'Image', 'Send Image URL', 'Unauthenticated']);
-
     		var req = new signedRequest("POST", "https://api.imgur.com/3/image", "image=" + encode(url) + "&type=url");
     		root.requestManager.queue(req);
 
@@ -1059,12 +1028,9 @@ function Model() {
 
     	};
 
-    	
+
 
     	this.deleteImage = function (deletehash) {
-
-    		// Don't track the actual image, just that they have triggered this method
-    		_gaq.push(['_trackEvent', 'Image', 'Delete Image', 'Unauthenticated']);
 
     		var req = new signedRequest("DELETE", "https://api.imgur.com/3/image/" + deletehash);
     		root.requestManager.queue(req);
