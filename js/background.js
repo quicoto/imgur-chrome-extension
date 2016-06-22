@@ -396,26 +396,25 @@ function setContextMenus() {
 		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
 
 		chrome.contextMenus.create({
+			"id": "authenticated.area.me",
+			"title": "Area",
+			"contexts": ["page"],
+			"parentId": parentId
+		});
+
+		chrome.contextMenus.create({
 			"id": "authenticated.page.me",
 			"title": "Page",
 			"contexts": ["page"],
 			"parentId": parentId
 		});
 
-
 		chrome.contextMenus.create({
 			"id": "authenticated.view.me",
 			"title": "View",
 			"contexts": ["page"],
 			"parentId": parentId
-		});
-
-		chrome.contextMenus.create({
-			"id": "authenticated.area.me",
-			"title": "Area",
-			"contexts": ["page"],
-			"parentId": parentId
-		});
+		});		
 
 		chrome.contextMenus.create({
 			"id": "authenticated.image.me",
