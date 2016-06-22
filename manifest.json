@@ -1,10 +1,8 @@
 {
-"update_url": "https://clients2.google.com/service/update2/crx",
-
 	"manifest_version" : 2,
-	"name": "imgur Extension by Metronomik",
+	"name": "imgur",
 	"description": "Take screenshots, add images to your imgur account and upload images from your desktop using drag and drop.",
-	"version": "2.1.0",
+	"version": "999",
 	"icons": {
 		"16": "img/logo16.png",
 		"128": "img/logo128.png"

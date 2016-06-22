@@ -394,149 +394,33 @@ function setContextMenus() {
 
 		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
 
-		var capturePageContextMenuItem = chrome.contextMenus.create({
-			"id": "unsorted.page",
-			"title": "capture page",
+		chrome.contextMenus.create({
+			"id": "authenticated.page.me",
+			"title": "Page",
 			"contexts": ["page"],
 			"parentId": parentId
 		});
 
-		var captureViewContextMenuItem = chrome.contextMenus.create({
-			"id": "unsorted.view",
-			"title": "capture view",
+
+		chrome.contextMenus.create({
+			"id": "authenticated.view.me",
+			"title": "View",
 			"contexts": ["page"],
 			"parentId": parentId
 		});
 
-		var captureAreaContextMenuItem = chrome.contextMenus.create({
-			"id": "unsorted.area",
-			"title": "capture area",
+		chrome.contextMenus.create({
+			"id": "authenticated.area.me",
+			"title": "Area",
 			"contexts": ["page"],
 			"parentId": parentId
 		});
 
-		var addImageContextMenuItem = chrome.contextMenus.create({
-			"id": "unsorted.rehost",
-			"title": "rehost image",
+		chrome.contextMenus.create({
+			"id": "authenticated.image.me",
+			"title": "Upload",
 			"contexts": ["image"]
 		});
-
-		if (model.authenticated.oAuthManager.getAuthStatus()) {
-
-			chrome.contextMenus.update(capturePageContextMenuItem, { title: "capture page to" });
-			chrome.contextMenus.update(captureViewContextMenuItem, { title: "capture view to" });
-			chrome.contextMenus.update(captureAreaContextMenuItem, { title: "capture area to" });
-			chrome.contextMenus.update(addImageContextMenuItem, { title: "rehost image to" });
-
-
-			chrome.contextMenus.create({
-				"id": "authenticated.page.thiscomputer",
-				"title": "- this computer -",
-				"contexts": ["page"],
-				"parentId": capturePageContextMenuItem
-			});
-
-
-			chrome.contextMenus.create({
-				"id": "authenticated.page.me",
-				"title": model.authenticated.getAccount().url,
-				"contexts": ["page"],
-				"parentId": capturePageContextMenuItem
-			});
-
-
-			chrome.contextMenus.create({
-				"id": "authenticated.view.thiscomputer",
-				"title": "- this computer -",
-				"contexts": ["page"],
-				"parentId": captureViewContextMenuItem
-			});
-
-			chrome.contextMenus.create({
-				"id": "authenticated.view.me",
-				"title": model.authenticated.getAccount().url,
-				"contexts": ["page"],
-				"parentId": captureViewContextMenuItem
-			});
-
-			chrome.contextMenus.create({
-				"id": "authenticated.area.thiscomputer",
-				"title": "- this computer -",
-				"contexts": ["page"],
-				"parentId": captureAreaContextMenuItem
-			});
-
-			chrome.contextMenus.create({
-				"id": "authenticated.area.me",
-				"title": model.authenticated.getAccount().url,
-				"contexts": ["page"],
-				"parentId": captureAreaContextMenuItem
-			});
-
-			chrome.contextMenus.create({
-				"id": "authenticated.image.thiscomputer",
-				"title": "- this computer -",
-				"contexts": ["image"],
-				"parentId": addImageContextMenuItem
-			});
-
-
-			chrome.contextMenus.create({
-				"id": "authenticated.image.me",
-				"title": model.authenticated.getAccount().url,
-				"contexts": ["image"],
-				"parentId": addImageContextMenuItem
-			});
-
-			var authenticatedAlbums = model.authenticated.getAlbums();
-
-			if (authenticatedAlbums.length > 0) {
-
-				for (var i = 0; i < authenticatedAlbums.length; i++) {
-
-					(function (album) {
-
-						if (album.title) {
-
-							// Extend
-							chrome.contextMenus.create({
-								"id": "authenticated.page.album." + album.id,
-								"title": album.title,
-								"contexts": ["page"],
-								"parentId": capturePageContextMenuItem
-							});
-
-
-							chrome.contextMenus.create({
-								"id": "authenticated.view.album." + album.id,
-								"title": album.title,
-								"contexts": ["page"],
-								"parentId": captureViewContextMenuItem
-							});
-
-							chrome.contextMenus.create({
-								"id": "authenticated.area.album." + album.id,
-								"title": album.title,
-								"contexts": ["page"],
-								"parentId": captureAreaContextMenuItem
-							});
-
-							chrome.contextMenus.create({
-								"id": "authenticated.image.album." + album.id,
-								"title": album.title,
-								"contexts": ["image"],
-								"parentId": addImageContextMenuItem
-							});
-
-						}
-					})(authenticatedAlbums[i]);
-
-				}
-
-			}
-
-		}
-
 
 	});
 
