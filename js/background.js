@@ -404,17 +404,17 @@ function setContextMenus() {
 
 		chrome.contextMenus.create({
 			"id": "authenticated.page.me",
-			"title": "Page",
+			"title": "Full Page",
 			"contexts": ["page"],
 			"parentId": parentId
 		});
 
 		chrome.contextMenus.create({
 			"id": "authenticated.view.me",
-			"title": "View",
+			"title": "Viewport",
 			"contexts": ["page"],
 			"parentId": parentId
-		});		
+		});
 
 		chrome.contextMenus.create({
 			"id": "authenticated.image.me",
