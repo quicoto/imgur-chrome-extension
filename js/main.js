@@ -1,5 +1,17 @@
 /// <reference path="model.js" />
 
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-41081662-9']);
+_gaq.push(['_trackPageview']);
+
+(function () {
+	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	ga.src = 'https://ssl.google-analytics.com/ga.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+
+
 var port = chrome.extension.connect({ name: "main" }),
     model = new Model(),
     EWrap,
@@ -32,7 +44,7 @@ var port = chrome.extension.connect({ name: "main" }),
 // CurrentOffset could also have this problem
 
 function uploadFiles(e) {
-
+    
     var noImages = ECurrentAlbum.querySelectorAll('.no-images')[0];
     if (noImages) {
         ECurrentAlbum.removeChild(noImages);
@@ -56,7 +68,7 @@ function uploadFiles(e) {
             reader.readAsDataURL(file);
         }
     } else {
-
+        
     }
 }
 
@@ -64,7 +76,7 @@ function makeImage(fileData) {
 
     var img = UTILS.DOM.create('image');
     img.src = fileData;
-
+    
     img.style.display = 'none';
 
     img.onload = function () {
@@ -76,7 +88,7 @@ function makeImage(fileData) {
         } else if(img.height >= img.width) {
             img.height = 160;
         }
-
+       
     };
 
     return img;
@@ -86,7 +98,7 @@ function makeImage(fileData) {
 function friendlyNumber(n,d){x=(''+n).length,p=Math.pow,d=p(10,d);x-=x%3;return Math.round(n*d/p(10,x))/d+" kMGTPE"[x/3]}
 
 function makeItem(fileData) {
-
+	
     var ul = ECurrentAlbum.querySelectorAll('ul')[0],
         img = makeImage(fileData);
     var loadingItem = makeLoadingItem(img);
@@ -109,7 +121,7 @@ function makeItem(fileData) {
                     convertLoadingToAlbum(loadingItem, e);
 
                 }).addEventListener('EVENT_ERROR', function() {
-
+                  
                 	chrome.notifications.create("", {
 
                 		type: "basic",
@@ -120,7 +132,7 @@ function makeItem(fileData) {
 
                 });
 
-
+                
             } else {
 
                 convertLoadingToAlbum(loadingItem, e);
@@ -129,7 +141,7 @@ function makeItem(fileData) {
 
         });
     }
-
+                
     evt.addEventListener(evt.EVENT_PROGRESS, function (e) {
         progress.value = Math.floor(((e.loaded/e.total) * 100));
     });
@@ -137,7 +149,7 @@ function makeItem(fileData) {
     evt.addEventListener('EVENT_PROGRESS', setBodyLoading);
 
     evt.addEventListener('EVENT_COMPLETE', setBodyFinished);
-
+                
     evt.addEventListener('EVENT_ERROR', function (msg) {
 
         var progress = loadingItem.querySelectorAll('progress')[0];
@@ -245,7 +257,7 @@ function unfavourite(image) {
 	}
 
 	elem.classList.add('loading');
-
+	
 	elem.style.cursor = 'progress';
 	model.authenticated.unfavouriteImage(image.id).addEventListener('EVENT_SUCCESS', function (e) {
 		if (elem) {
@@ -253,7 +265,7 @@ function unfavourite(image) {
 			elem.parentNode.removeChild(elem);
 		}
 	});
-
+	
 }
 */
 
@@ -263,7 +275,7 @@ function makeAlbumItem(imageItem) {
         inner = UTILS.DOM.create('div'),
         img = UTILS.DOM.create('img'),
         imgLink = UTILS.DOM.create('a');
-
+       
 
     li.id = imageItem.id;
     li.classList.add('loading');
@@ -315,22 +327,22 @@ function makeAlbumItem(imageItem) {
 
     		}
 
-
+    		
     	} else {
     		chrome.tabs.create({ "url": this.href, "selected": true });
     	}
 
-
+    	
     };
-
-
+    
+    
     if (imageItem.title) {
 		imgLink.title = imageItem.title;
 	}
     imgLink.classList.add('image-link');
     imgLink.appendChild(img);
     inner.appendChild(imgLink);
-
+    
 
     if (!imageItem.is_album) {
 
@@ -411,7 +423,7 @@ function makeAlbumItem(imageItem) {
     	// A gif may or may not have an "h" for "huge" added to its link
     	// All gifs have a "gifv" property set even if they are not gifv
 
-    	// If they are a real gif (link doesn't have an h) leave it alone
+    	// If they are a real gif (link doesn't have an h) leave it alone 
     	// If they are a real gifv (link contains an h but gifv doesn't contain an h), remove the link h
 		// If they are a fake gifv (link contains an h and gifv contains an h) leave it alone
 
@@ -427,7 +439,7 @@ function makeAlbumItem(imageItem) {
         	var gifVFixArr = imageItem.gifv.split('.'); gifVFixArr.pop();
         	var gifVFix = gifVFixArr.join('.');
         	var realGifV = gifVFix[gifVFix.length - 1] !== 'h';
-
+        	
 			// Real gifV doesn't have an h
         	if (realGifV) {
 
@@ -435,7 +447,7 @@ function makeAlbumItem(imageItem) {
         		imgLink.href = imageItem.gifv;
 
         	}
-
+        	
         }
 
         img.src = imageName + 't.' + ext;
@@ -485,13 +497,13 @@ function makeAlbumItem(imageItem) {
 
 		// Can't load into iframe
         imgLink.dataset['is_album'] = true;
-
+        
     }
 
     imgLink.dataset['id'] = imageItem.id;
 
-
-
+    
+    
     return li;
 
 }
@@ -540,7 +552,7 @@ function constructAlbumImages(images, album) {
 	hideStatusBar();
 
 	var ul = album.querySelectorAll('ul')[0];
-
+    
 	if(CurrentOffset === 0) {
 
 		ul.innerHTML = "";
@@ -560,7 +572,7 @@ function constructAlbumImages(images, album) {
             } else {
                 ul.insertBefore(makeAlbumItem(images[i]), ul.firstChild);
             }
-
+            
         }
     } else if(CurrentOffset === 0) {
         showStatusBar("You have no images in this album. You can drag and drop images onto this page or print screen and paste straight onto this page to upload your images.");
@@ -613,7 +625,7 @@ function fetchImages() {
                 	if (msg.status === 400) {
                 		criticalError();
                 	}
-
+                	
                 	chrome.notifications.create("", {
 
                 		type: "basic",
@@ -660,13 +672,13 @@ function fetchImages() {
 
 			// Show immediately
 			constructAlbumImages(model.authenticated.getAlbumImages(CurrentAlbum, CurrentOffset), EAlbum);
-
+			
 			callback = model.authenticated.fetchAlbumImages(CurrentAlbum, CurrentOffset);
 
                 callback.addEventListener('EVENT_COMPLETE', setBodyFinished)
                 .addEventListener('EVENT_SUCCESS', function (images) {
 
-                	if (!!lastUserImagesSet && images[0].id === lastUserImagesSet[0].id) {
+                	if (!!lastUserImagesSet && images[0].id === lastUserImagesSet[0].id) {	
                 		EAlbum.dataset.end = true;
                 		return;
                 	}
@@ -723,8 +735,8 @@ function changeAlbum(albumID) {
         return;
     }
 
-
-
+    
+   
     if (albumID !== "_thisComputer") {
     	CurrentOffset = 0;
     	CurrentAlbumEnd = false;
@@ -835,7 +847,7 @@ function initAuthenticated() {
 
         ENavSelect.appendChild(albumsOptGroup);
     }
-
+	
     var newAlbumOpt = UTILS.DOM.create('option');
     newAlbumOpt.value = '_newAlbum';
     newAlbumOpt.text = '<New Album>';
@@ -904,7 +916,7 @@ function showComments(comments) {
 
 				span.innerHTML = '<a href="http://imgur.com/user/' + comments[i].author + '" class="user">' + comments[i].author + '</a>';
 				span.innerHTML += commentContent;
-
+			
 				li.appendChild(span);
 				ul.appendChild(li);
 
@@ -927,7 +939,7 @@ function showComments(comments) {
 function makeAlbumSlideShow(id) {
 
 	model.authenticated.fetchAlbumImages(id, 0).addEventListener("EVENT_SUCCESS", function(items) {
-
+		
 		var imageItems = [];
 
 		for (var i = 0; i < items.length; i++) {
@@ -949,7 +961,7 @@ function makeAlbumSlideShow(id) {
 		}
 
 		makeSlideShow(0, imageItems, false, true);
-
+		
 	});
 
 }
@@ -1137,14 +1149,14 @@ $(document).ready(function () {
 
 	changeAlbum(model.currentAlbum.get());
 
-
+	
 
 	window.onscroll = function() {
-
+	
 		if(document.body.scrollTop + window.innerHeight >= (document.body.clientHeight - 100)) {
 			checkForMoreImages();
 		}
-
+		
 	}
 
 	var body = document.body,

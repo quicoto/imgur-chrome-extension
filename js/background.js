@@ -1,5 +1,14 @@
 /// <reference path="model.js" />
 
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-41081662-9']);
+
+(function () {
+	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	ga.src = 'https://ssl.google-analytics.com/ga.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
 var model = new Model(),
     portMessenger = new UTILS.PortMessenger(),
     requestMessenger = new UTILS.RequestMessenger(),
@@ -27,15 +36,15 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 function handleCapture() {
 
 	var evtD = new UTILS.EventDispatcher(['EVENT_SUCCESS', 'EVENT_ERROR']);
-
+	
 	chrome.tabs.getSelected(null, function (tab) {
 
 		chrome.tabs.executeScript(tab.id, { file: "js/inject/captureArea.js" }, function (info) {
-
+				
 			if (typeof info !== "undefined") {
 
 				chrome.tabs.captureVisibleTab(null, { format: "png" }, function (img) {
-
+				
 					requestMessenger.addEventListener("got_area", function (e) {
 						requestMessenger.removeEventListener("got_area", arguments.callee);
 						var canvas = document.createElement('canvas');
@@ -51,7 +60,7 @@ function handleCapture() {
 					}, true);
 
 				});
-
+			
 
 			} else {
 				evtD.dispatchEvent(evtD.EVENT_ERROR, "Access to the page is denied");
@@ -61,8 +70,8 @@ function handleCapture() {
 
 	});
 
-
-
+			
+		
 	return evtD;
 }
 
@@ -70,8 +79,6 @@ function handleCapture() {
 function addToClipboard(url) {
 	var txt = UTILS.DOM.create('input');
 	document.body.appendChild(txt);
-	// Change from HTTP to HTTPS
-	url = url.replace('http', 'https');
 	txt.value = url;
 	txt.select();
 	document.execCommand('copy');
@@ -391,27 +398,158 @@ function uploadDelegate(evt) {
 }
 
 function setContextMenus() {
-
+    
 	chrome.contextMenus.removeAll(function () {
 
-		var captureAreaContextMenuItem = chrome.contextMenus.create({
-			"id": "authenticated.area.me",
-			"title":'Area',
-			"contexts": ["page"]
-		});
+		var parentId = chrome.contextMenus.create({ "id": "imgur", "title": "imgur" });
 
 		var capturePageContextMenuItem = chrome.contextMenus.create({
-			"id": "authenticated.page.me",
-			"title": 'Page',
-			"contexts": ["page"]
+			"id": "unsorted.page",
+			"title": "capture page",
+			"contexts": ["page"],
+			"parentId": parentId
 		});
 
 		var captureViewContextMenuItem = chrome.contextMenus.create({
-			"id": "authenticated.view.me",
-			"title":'Viewport',
-			"contexts": ["page"]
+			"id": "unsorted.view",
+			"title": "capture view",
+			"contexts": ["page"],
+			"parentId": parentId
 		});
+
+		var captureAreaContextMenuItem = chrome.contextMenus.create({
+			"id": "unsorted.area",
+			"title": "capture area",
+			"contexts": ["page"],
+			"parentId": parentId
+		});
+
+		var addImageContextMenuItem = chrome.contextMenus.create({
+			"id": "unsorted.rehost",
+			"title": "rehost image",
+			"contexts": ["image"]
+		});
+
+		if (model.authenticated.oAuthManager.getAuthStatus()) {
+
+			chrome.contextMenus.update(capturePageContextMenuItem, { title: "capture page to" });
+			chrome.contextMenus.update(captureViewContextMenuItem, { title: "capture view to" });
+			chrome.contextMenus.update(captureAreaContextMenuItem, { title: "capture area to" });
+			chrome.contextMenus.update(addImageContextMenuItem, { title: "rehost image to" });
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.page.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["page"],
+				"parentId": capturePageContextMenuItem
+			});
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.page.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["page"],
+				"parentId": capturePageContextMenuItem
+			});
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.view.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["page"],
+				"parentId": captureViewContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.view.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["page"],
+				"parentId": captureViewContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.area.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["page"],
+				"parentId": captureAreaContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.area.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["page"],
+				"parentId": captureAreaContextMenuItem
+			});
+
+			chrome.contextMenus.create({
+				"id": "authenticated.image.thiscomputer",
+				"title": "- this computer -",
+				"contexts": ["image"],
+				"parentId": addImageContextMenuItem
+			});
+
+
+			chrome.contextMenus.create({
+				"id": "authenticated.image.me",
+				"title": model.authenticated.getAccount().url,
+				"contexts": ["image"],
+				"parentId": addImageContextMenuItem
+			});
+
+			var authenticatedAlbums = model.authenticated.getAlbums();
+
+			if (authenticatedAlbums.length > 0) {
+
+				for (var i = 0; i < authenticatedAlbums.length; i++) {
+
+					(function (album) {
+
+						if (album.title) {
+
+							// Extend
+							chrome.contextMenus.create({
+								"id": "authenticated.page.album." + album.id,
+								"title": album.title,
+								"contexts": ["page"],
+								"parentId": capturePageContextMenuItem
+							});
+
+
+							chrome.contextMenus.create({
+								"id": "authenticated.view.album." + album.id,
+								"title": album.title,
+								"contexts": ["page"],
+								"parentId": captureViewContextMenuItem
+							});
+
+							chrome.contextMenus.create({
+								"id": "authenticated.area.album." + album.id,
+								"title": album.title,
+								"contexts": ["page"],
+								"parentId": captureAreaContextMenuItem
+							});
+
+							chrome.contextMenus.create({
+								"id": "authenticated.image.album." + album.id,
+								"title": album.title,
+								"contexts": ["image"],
+								"parentId": addImageContextMenuItem
+							});
+
+						}
+					})(authenticatedAlbums[i]);
+
+				}
+
+			}
+
+		}
+
+
 	});
+
+
 }
 
 // Result of an action
@@ -421,7 +559,7 @@ function showError(msg) {
 	chrome.browserAction.setBadgeText({ 'text': '' });
 
 	if (typeof msg === "string") {
-
+		
 		chrome.notifications.create("imgur.failed", {
 
 			type: "basic",
@@ -442,7 +580,7 @@ function showError(msg) {
 		}
 	}
 
-
+	
 }
 
 // Can happen silently
@@ -500,13 +638,13 @@ portMessenger.addEventListener("main.get_user", function () {
     	chrome.tabs.onRemoved.addListener(sendAuthAbortedMessage);
 
     	requestMessenger.addEventListener("oauth_verified", function (verifier) {
-
+    		
     		requestMessenger.removeEventListener("oauth_verified", arguments.callee);
 
     		chrome.tabs.remove(tab.id);
 
     		model.authenticated.oAuthManager.getToken(verifier.Data).addEventListener('EVENT_COMPLETE', function () {
-
+    			
     			authTab = -1;
     			chrome.tabs.onRemoved.removeListener(sendAuthAbortedMessage);
 
@@ -527,7 +665,7 @@ portMessenger.addEventListener("main.get_user", function () {
     			});
 
     		}).addEventListener('EVENT_ERROR', function (error) {
-
+    			
     			showError(error);
 
     		});
@@ -580,7 +718,7 @@ function showReplyNotification(reply) {
 	xhr.onload = function () {
 
 		var img = arrayBufferDataUri(xhr.response);
-
+		
 		chrome.notifications.create(reply.id + "", {
 			type: "image",
 			iconUrl: "img/logo96.png",
@@ -614,7 +752,7 @@ function showReplyNotification(reply) {
 }
 
 function showReplyNotifications(replies) {
-
+	
 	chrome.notifications.create(replies[0].id + "", {
 		type: "basic",
 		iconUrl: "img/logo96.png",
@@ -760,7 +898,7 @@ chrome.notifications.onClicked.addListener(function (notificationId) {
 			break;
 
 	}
-
+	
 	setNotificationInfoAsRead(notificationId, notificationInfo);
 
 });
@@ -799,7 +937,7 @@ function startNotifications() {
 function stopNotifications() {
 
 	chrome.alarms.clear("ALARM_NOTIFICATIONS");
-
+	
 }
 
 function toggleNotifications() {
@@ -823,7 +961,7 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
 		checkNotifications();
 
 	} else if (alarm.name === "ALARM_CONTEXTMENUS") {
-
+		
 		checkContextMenus();
 
 	}
@@ -921,11 +1059,11 @@ handleNotifications({
 var appNotifications = model.getNotifications();
 
 if (appNotifications.length > 0) {
-
+	
 	for (var i = 0; i < appNotifications.length; i++) {
-
+		
 		(function (notification) {
-
+			
 			chrome.notifications.create(notification.id, {
 
 				type: "basic",
