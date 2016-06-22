@@ -68,6 +68,7 @@ function handleCapture() {
 
 
 function addToClipboard(url) {
+	url = url.replace('http', 'https');
 	var txt = UTILS.DOM.create('input');
 	document.body.appendChild(txt);
 	txt.value = url;
